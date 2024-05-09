@@ -73,7 +73,8 @@ function SyntaxEpee.stab(opts)
         local diag_data = {
             msg = diag.message,
             severity = severity[diag.severity],
-            line = diag.lnum + 1
+            line = diag.lnum + 1,
+            col = diag.col
         }
 
         table.insert(diagnostic_lines, removeLastLine(msg))
@@ -95,8 +96,8 @@ function SyntaxEpee.stab(opts)
                 if currentLine == nil or currentLine.index < 0 or #full_diag_data <= 0 then
                     return
                 end
-                local line = full_diag_data[currentLine.index].line
-                pcall(vim.api.nvim_win_set_cursor, 0, { line, 0 })
+                local err_line = full_diag_data[currentLine.index]
+                pcall(vim.api.nvim_win_set_cursor, 0, { err_line.line, err_line.col })
             end)
             return true
         end,
