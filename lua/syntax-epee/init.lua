@@ -81,6 +81,12 @@ function SyntaxEpee.stab(opts)
         table.insert(full_diag_data, diag_data)
     end
 
+    if #diagnostic_lines <= 0 then
+        local msg = "no errors found in file"
+        table.insert(diagnostic_lines, msg)
+        t_width = string.len(msg) + 4;
+    end
+
     pickers.new(opts, {
         prompt_title = "Syntax Épée",
         finder = finders.new_table {
@@ -88,6 +94,13 @@ function SyntaxEpee.stab(opts)
         },
         layout_config = {
             width = t_width + 3,
+            height = function()
+                if #diagnostic_lines <=1 then
+                    return 10
+                else
+                    return 20
+                end
+            end
         },
         attach_mappings = function(prompt_bufnr)
             actions.select_default:replace(function()
