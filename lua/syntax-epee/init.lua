@@ -1,14 +1,8 @@
-local pickers = require "telescope.pickers"
-local finders = require "telescope.finders"
-local conf = require("telescope.config").values
-local actions = require "telescope.actions"
-local action_state = require "telescope.actions.state"
-
 local SyntaxEpee = {}
 
 SyntaxEpee.namespace = vim.api.nvim_create_namespace("win_err")
 
-local severity = {
+local severity = { -- NOTE: Add color based on warning/error/info would be cool
   [1] = "ERROR",
   [2] = "WARN",
   [3] = "INFO",
@@ -26,32 +20,31 @@ local function getDiags()
     return diags
 end
 
-local function removeLastLine(str)
-    local pos = 0
-    while true do
-        local nl = string.find(str, "\n", pos, true)
-        if not nl then break end
-        pos = nl + 1
-    end
-    if pos == 0 then return str end
-    return string.sub(str, 1, pos - 2)
-end
+--local function removeLastLine(str)
+--    local pos = 0
+--    while true do
+--        local nl = string.find(str, "\n", pos, true)
+--        if not nl then break end
+--        pos = nl + 1
+--    end
+--    if pos == 0 then return str end
+--    return string.sub(str, 1, pos - 2)
+--end
 
 function SyntaxEpee.stab(opts)
     opts = opts or {}
 
     local diags = getDiags()
+    local diagnostic_lines = {}
+    local full_diag_data = {}
 
     if diags == nil then
         return
     end
 
-    local diagnostic_lines = {}
-    local full_diag_data = {}
-
     table.sort(diags, function(a,b) return a.severity < b.severity end)
 
-    local t_width = 10;
+    local window_width = 50;
     for _, diag in ipairs(diags) do
         local tab = " | "
         local msg = ""
@@ -66,8 +59,8 @@ function SyntaxEpee.stab(opts)
             msg = "\u{f400} [" .. diag.lnum + 1 ..":" .. diag.col .. "]" .. tab .. severity[diag.severity] .. tab .. diag.message
         end
 
-        if string.len(msg) > t_width then
-            t_width = string.len(msg)
+        if string.len(msg) > window_width then
+            window_width = string.len(msg)
         end
 
         local diag_data = {
@@ -77,51 +70,28 @@ function SyntaxEpee.stab(opts)
             col = diag.col
         }
 
-        table.insert(diagnostic_lines, removeLastLine(msg))
-        table.insert(full_diag_data, diag_data)
+        table.insert(diagnostic_lines, msg)--removeLastLine(msg))
+        table.insert(full_diag_data, diag_data) -- NOTE: remove duplicate messages
     end
 
-    if #diagnostic_lines <= 0 then
-        local msg = "no errors found in file"
-        table.insert(diagnostic_lines, msg)
-        t_width = string.len(msg) + 4;
-    end
 
-    pickers.new(opts, {
-        prompt_title = "Syntax Épée",
-        finder = finders.new_table {
-            results = diagnostic_lines
-        },
-        layout_config = {
-            width = t_width + 3,
-            height = function()
-                if #diagnostic_lines <=1 then
-                    return 10
-                else
-                    return 20
-                end
-            end
-        },
-        attach_mappings = function(prompt_bufnr)
-            actions.select_default:replace(function()
-                local currentLine = action_state.get_selected_entry()
-                actions.close(prompt_bufnr)
-                if currentLine == nil or currentLine.index < 0 or #full_diag_data <= 0 then
-                    return
-                end
-                local err_line = full_diag_data[currentLine.index]
-                pcall(vim.api.nvim_win_set_cursor, 0, { err_line.line, err_line.col })
-            end)
-            return true
-        end,
-        sorter = conf.generic_sorter(opts),
-    }):find()
+     if #diagnostic_lines <= 0 then
+         local msg = "no errors found in file"
+         table.insert(diagnostic_lines, msg)
+         window_width = string.len(msg) + 4;
+     end
+
+    print(vim.inspect(diagnostic_lines))
+    -- print(vim.inspect(full_diag_data))
 end
 
 function SyntaxEpee.setup()
-    if vim.fn.has("nvim-0.7.0") ~= 1 then
-        vim.api.nvim_err_writeln("Incorrect nvim version in use, please use lates")
+    local nvim_version = vim.version()
+
+    if nvim_version.minor <= 7 then
+        vim.api.nvim_err_writeln("Incorrect nvim version in use, please use latest")
     end
+
 end
 
 return SyntaxEpee
