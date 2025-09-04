@@ -1,5 +1,5 @@
 package = "syntax-epee.nvim"
-version = "scm-1"
+version = "0.1.0"
 source = {
    url = "git://github.com/StevenCederrand/syntax-epee"
 }
@@ -12,7 +12,7 @@ working in. This builds upon telescope in order to display and filter the messag
    license = ""
 }
 dependencies = {
-   "lua >= 5.1",
+   "lua >= 5.4",
 }
 build = {
    type = "builtin",
