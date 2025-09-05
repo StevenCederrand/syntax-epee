@@ -1,19 +1,23 @@
 ## Syntax Épée
 
-Syntax Épée let's one view all of the lsp errors/warnings/info/hints in the file you are currently
-working in.
+Syntax Épée is a simple plugin that fetches all lsp diagnostics and displays them within a selectable window.
 
 ### Pre-reqs
 * **nerdfonts**: are a must
 
 ## Installation
-You can install Syntax Épée using packer.
+You can install Syntax Épée using Packer and Lazy.
 
+### With Packer
 `use 'stevencederrand/syntax-epee'`
 
+### With Lazy
+[See configs](https://github.com/StevenCederrand/configs/blob/master/nvim/lua/core/lazy.lua)
+
 ## Configuration
-Syntax Épée is a very barebones plugin. You can use the following to setup `leader e` as your hotkey
-for using Syntax Épée.
+
+Syntax Épée is a very barebones plugin, and therefore doesn't require any settings. I would suggest setting up
+`leader e` as keybinding for opening the menu.
 
 ``` lua
 require("syntax-epee").setup()
@@ -21,4 +25,8 @@ vim.keymap.set("n", "<leader>e", function() require("syntax-epee").stab() end)
 ```
 ## Demo
 
-![syntax-epee](https://github.com/StevenCederrand/syntax-epee/assets/17464114/593c38f4-93a2-4eb9-bb6f-9d25457518dd)
+![syntax-epee](https://github.com/user-attachments/assets/471b9eff-0ee3-49fc-a659-48dd5d88fa86)
+
+
+
+
