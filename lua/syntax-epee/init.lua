@@ -60,7 +60,7 @@ local function removeNewLine(str)
 end
 
 local function showWindow(opts)
-    local height = 20
+    local height = opts.window_height or 20
     local width = opts.window_width or 30
     local borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
 
@@ -104,6 +104,7 @@ local function addHighlights()
             lines.hints = lines.hints + 1
         end
     end
+
     nvim_set_extmark(0, lines.errors, 'SyntaxEpeeErr')
     nvim_set_extmark(lines.errors, lines.errors + lines.warnings, 'SyntaxEpeeWarn')
     nvim_set_extmark(lines.errors + lines.warnings, lines.errors + lines.warnings + lines.infos, 'SyntaxEpeeInfo')
@@ -178,6 +179,7 @@ function SyntaxEpee.stab(opts)
 
     local widow_opts = {
         window_width = window_width,
+        window_height = #diag_lines,
     }
 
     showWindow(widow_opts)

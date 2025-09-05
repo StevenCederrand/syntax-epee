@@ -1,5 +1,5 @@
 package = "syntax-epee.nvim"
-version = "0.1.0"
+version = "dev-2"
 source = {
    url = "git://github.com/StevenCederrand/syntax-epee"
 }
@@ -7,12 +7,12 @@ description = {
    summary = "Syntax Épée let's one view all of the lsp errors/warnings/info/hints in the file you are currently working in.",
    detailed = [[
 Syntax Épée let's one view all of the lsp errors/warnings/info/hints in the file you are currently
-working in. This builds upon telescope in order to display and filter the messages.]],
+working in.]],
    homepage = "https://github.com/stevencederrand/syntax-epee",
    license = ""
 }
 dependencies = {
-   "lua >= 5.4",
+   "lua >= 5.4"
 }
 build = {
    type = "builtin",
