@@ -1,22 +1,22 @@
 local SyntaxEpee = {}
 
-SyntaxEpee.namespace = vim.api.nvim_create_namespace("syntax_epee")
+SyntaxEpee.namespace = vim.api.nvim_create_namespace('syntax_epee')
 SyntaxEpee.ns_id = vim.api.nvim_get_namespaces().syntax_epee
 
 local popup = require('plenary.popup')
 
 local severity = {
-  [1] = "<ERROR>",
-  [2] = "<WARN>",
-  [3] = "<INFO>",
-  [4] = "<HINT>",
+  [1] = '<ERROR>',
+  [2] = '<WARN>',
+  [3] = '<INFO>',
+  [4] = '<HINT>',
 }
 
 local colors = {
-   ERROR = "#DC2626",
-   WARNING = "#FBBF24",
-   INFO = "#2563EB",
-   HINT = "#10B981",
+   ERROR = 'DiagnosticError',
+   WARNING = 'DiagnosticWarn',
+   INFO = 'DiagnosticInfo',
+   HINT = 'DiagnosticHint',
 }
 
 local syntax_epee_win_id = nil
@@ -51,7 +51,7 @@ end
 local function removeNewLine(str)
     local pos = 0
     while true do
-        local nl = string.find(str, "\n", pos, true)
+        local nl = string.find(str, '\n', pos, true)
         if not nl then break end
         pos = nl + 1
     end
@@ -62,11 +62,11 @@ end
 local function showWindow(opts)
     local height = opts.window_height or 20
     local width = opts.window_width or 30
-    local borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
+    local borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' }
 
     syntax_epee_win_id = popup.create(diag_lines, {
-        title = "Syntax-Épée",
-        highlight = "SyntaxEpeeWindow",
+        title = 'Syntax-Épée',
+        highlight = 'SyntaxEpeeWindow',
         line = math.floor(((vim.o.lines - height) / 2) - 1),
         col = math.floor((vim.o.columns - width) / 2),
         minwidth = width,
@@ -78,10 +78,10 @@ local function showWindow(opts)
 end
 
 local function addHighlights()
-    vim.api.nvim_command('highlight SyntaxEpeeErr guifg=' .. colors.ERROR)
-    vim.api.nvim_command('highlight SyntaxEpeeWarn guifg=' .. colors.WARNING)
-    vim.api.nvim_command('highlight SyntaxEpeeInfo guifg=' .. colors.INFO)
-    vim.api.nvim_command('highlight SyntaxEpeeHint guifg=' .. colors.HINT)
+    vim.api.nvim_command('highlight link SyntaxEpeeErr ' .. colors.ERROR)
+    vim.api.nvim_command('highlight link SyntaxEpeeWarn ' .. colors.WARNING)
+    vim.api.nvim_command('highlight link SyntaxEpeeInfo ' .. colors.INFO)
+    vim.api.nvim_command('highlight link SyntaxEpeeHint ' .. colors.HINT)
 
     local lines = {
         errors = 0,
@@ -143,17 +143,17 @@ function SyntaxEpee.stab(opts)
     local window_width = 50;
 
     for _, diag in ipairs(diags) do
-        local tab = " | "
-        local msg = ""
+        local tab = ' | '
+        local msg = ''
 
         if diag.severity == 1 then
-            msg = "\u{ea87} [" .. diag.lnum + 1 ..":" .. diag.col .. "]" .. tab .. severity[diag.severity] .. tab .. diag.message
+            msg = '\u{ea87} [' .. diag.lnum + 1 ..':' .. diag.col .. ']' .. tab .. severity[diag.severity] .. tab .. diag.message
         elseif diag.severity == 2 then
-            msg = "\u{ea6c} [" .. diag.lnum + 1 ..":" .. diag.col .. "]" .. tab .. severity[diag.severity] .. tab .. diag.message
+            msg = '\u{ea6c} [' .. diag.lnum + 1 ..':' .. diag.col .. ']' .. tab .. severity[diag.severity] .. tab .. diag.message
         elseif diag.severity == 3 then
-            msg = "\u{e66a} [" .. diag.lnum + 1 ..":" .. diag.col .. "]" .. tab .. severity[diag.severity] .. tab .. diag.message
+            msg = '\u{e66a} [' .. diag.lnum + 1 ..':' .. diag.col .. ']' .. tab .. severity[diag.severity] .. tab .. diag.message
         else
-            msg = "\u{f400} [" .. diag.lnum + 1 ..":" .. diag.col .. "]" .. tab .. severity[diag.severity] .. tab .. diag.message
+            msg = '\u{f400} [' .. diag.lnum + 1 ..':' .. diag.col .. ']' .. tab .. severity[diag.severity] .. tab .. diag.message
         end
 
         if string.len(msg) > window_width then
@@ -172,7 +172,7 @@ function SyntaxEpee.stab(opts)
     end
 
     if #diag_lines <= 0 then
-        local msg = "no errors found in file"
+        local msg = 'no errors found in file'
         table.insert(diag_lines, msg)
         window_width = string.len(msg);
     end
@@ -185,15 +185,15 @@ function SyntaxEpee.stab(opts)
     showWindow(widow_opts)
     addHighlights()
 
-    vim.api.nvim_buf_set_keymap(syntax_epee_buf_id, "n", "<ESC>", "<cmd>lua CloseWindow()<CR>", { silent=false })
-    vim.api.nvim_buf_set_keymap(syntax_epee_buf_id, "n", "<CR>", "<cmd>lua SelectHint()<CR>", { silent=false })
+    vim.api.nvim_buf_set_keymap(syntax_epee_buf_id, 'n', '<ESC>', '<cmd>lua CloseWindow()<CR>', { silent=false })
+    vim.api.nvim_buf_set_keymap(syntax_epee_buf_id, 'n', '<CR>', '<cmd>lua SelectHint()<CR>', { silent=false })
 end
 
 function SyntaxEpee.setup()
     local nvim_version = vim.version()
 
     if nvim_version.minor <= 7 then
-        vim.api.nvim_err_writeln("Incorrect nvim version in use, please use latest")
+        vim.api.nvim_err_writeln('Incorrect nvim version in use, please use latest')
     end
 end
 
