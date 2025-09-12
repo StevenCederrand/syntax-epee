@@ -21,8 +21,8 @@ local colors = {
 
 local syntax_epee_win_id = nil
 local syntax_epee_buf_id = nil
-local full_diag_data = {}
-local diag_lines = {}
+local global_full_diag_data = {}
+local global_diag_lines = {}
 
 local function getDiags()
     local ok, diags = pcall(vim.diagnostic.get, 0)
@@ -49,14 +49,7 @@ local function nvim_set_extmark(line, end_line, hl_group)
 end
 
 local function removeNewLine(str)
-    local pos = 0
-    while true do
-        local nl = string.find(str, '\n', pos, true)
-        if not nl then break end
-        pos = nl + 1
-    end
-    if pos == 0 then return str end
-    return string.sub(str, 1, pos - 2)
+    return string.gsub(str, "[\n]", " ")
 end
 
 local function showWindow(opts)
@@ -64,7 +57,7 @@ local function showWindow(opts)
     local width = opts.window_width or 30
     local borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' }
 
-    syntax_epee_win_id = popup.create(diag_lines, {
+    syntax_epee_win_id = popup.create(global_diag_lines, {
         title = 'Syntax-Épée',
         highlight = 'SyntaxEpeeWindow',
         line = math.floor(((vim.o.lines - height) / 2) - 1),
@@ -90,17 +83,17 @@ local function addHighlights()
         hints = 0,
     }
 
-    for i = 1, #full_diag_data do
-        if full_diag_data[i].severity == severity[1] then
+    for i = 1, #global_full_diag_data do
+        if global_full_diag_data[i].severity == severity[1] then
             lines.errors = lines.errors + 1
         end
-        if full_diag_data[i].severity == severity[2] then
+        if global_full_diag_data[i].severity == severity[2] then
             lines.warnings = lines.warnings + 1
         end
-        if full_diag_data[i].severity == severity[3] then
+        if global_full_diag_data[i].severity == severity[3] then
             lines.infos = lines.infos + 1
         end
-        if full_diag_data[i].severity == severity[4] then
+        if global_full_diag_data[i].severity == severity[4] then
             lines.hints = lines.hints + 1
         end
     end
@@ -113,14 +106,14 @@ end
 
 function CloseWindow()
     vim.api.nvim_win_close(syntax_epee_win_id, true)
-    diag_lines = {}
-    full_diag_data = {}
+    global_diag_lines = {}
+    global_full_diag_data = {}
     syntax_epee_win_id = nil
 end
 
 function SelectHint()
     local idx = vim.api.nvim_win_get_cursor(syntax_epee_win_id)[1]
-    local err_line = full_diag_data[idx]
+    local err_line = global_full_diag_data[idx]
 
     CloseWindow()
 
@@ -167,19 +160,20 @@ function SyntaxEpee.stab(opts)
             col = diag.col
         }
 
-        table.insert(diag_lines, removeNewLine(msg))
-        table.insert(full_diag_data, diag_data) -- TODO: remove duplicate messages on the same line
+        local one_line_message, _ = removeNewLine(msg)
+        table.insert(global_diag_lines, one_line_message)
+        table.insert(global_full_diag_data, diag_data) -- TODO: remove duplicate messages on the same line
     end
 
-    if #diag_lines <= 0 then
+    if #global_diag_lines <= 0 then
         local msg = 'no errors found in file'
-        table.insert(diag_lines, msg)
+        table.insert(global_diag_lines, msg)
         window_width = string.len(msg);
     end
 
     local widow_opts = {
         window_width = window_width,
-        window_height = #diag_lines,
+        window_height = #global_diag_lines,
     }
 
     showWindow(widow_opts)
